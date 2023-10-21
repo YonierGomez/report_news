@@ -44,12 +44,12 @@ Crea un BOT en telegram y cuando ejecutes el contenedor llama a la variable `-e 
 version: '3'
 services:
   report_news:
-	image: neytor/report_news
-	container_name: report_new_container
-	restart: always
-	environment:
-	  - TOKEN=tu_token_del_bot_de_telegram #OBLIGATORIO
-	  - user=botpro  #OPCIONAL
+    image: neytor/report_news
+    container_name: report_new_container
+    restart: always
+    environment:
+      - TOKEN=tu_token_del_bot_de_telegram #OBLIGATORIO
+      - user=botpro  #OPCIONAL
 ...
 ```
 
@@ -59,8 +59,8 @@ services:
 
 ```bash
 docker container run \
-	--name report_news -e TOKEN=tu_token_del_bot_de_telegram
-	-d neytor/report_news
+   --name report_news -e TOKEN=tu_token_del_bot_de_telegram
+   -d neytor/report_news
 ```
 
 ## Arquitectura soportada
@@ -82,7 +82,6 @@ Puedes pasar las siguientes variables al crear el contenedor
 
 ## Environment variables desde archivo (Docker secrets)
 
-  
 
 Se recomienda pasar la variable `TOKEN`a través de un archivo.
 
@@ -92,8 +91,8 @@ Puedes utilizarla para cualquier raspberry pi
 
 ```bash
 docker container run \
-	--name report_news -e TOKEN=tu_token_del_bot_de_telegram
-	-d neytor/report_news:arm
+  --name report_news -e TOKEN=tu_token_del_bot_de_telegram
+  -d neytor/report_news:arm
 ```
 
 [![Try in PWD](https://github.com/play-with-docker/stacks/raw/cff22438cb4195ace27f9b15784bbb497047afa7/assets/images/button.png)](http://play-with-docker.com?stack=https://raw.githubusercontent.com/docker-library/docs/db214ae34137ab29c7574f5fbe01bc4eaea6da7e/wordpress/stack.yml)

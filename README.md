@@ -1,4 +1,4 @@
-Obtener noticias a través de un bot en telegram, hecho en Python.
+Web scrapping para obtener noticias a través de un bot en telegram, hecho en Python.
 ======================  
 ## Referencia rápida
 * [¿Qué es web scraping?](#qué-es-web-scraping)

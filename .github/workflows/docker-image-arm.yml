@@ -1,4 +1,4 @@
-name: Docker Image CI for Report_news
+name: Docker Image CI for Report_news ARM
 
 on:
   workflow_dispatch: # Agrega esta entrada para habilitar la ejecución manual

@@ -2,8 +2,8 @@ Obtener noticias a través de un bot en telegram, hecho en Python.
 ======================  
 ## Referencia rápida
 * [¿Qué es web scraping?](#qué-es-web-scraping)
-* [¿Cuál es nuestro uso?](#¿cuál-es-nuestro-uso?)
-* [¿Cómo usar esta imagen?](#¿cómo-usar-esta-imagen?)
+* [¿Cuál es nuestro uso?](#cuál-es-nuestro-uso)
+* [¿Cómo usar esta imagen?](#cómo-usar-esta-imagen)
 * [Arquitectura soportada](#arquitectura-soportada)
 * [Variables](#variables)
 * [Uso en raspberry](#uso-en-raspberry)

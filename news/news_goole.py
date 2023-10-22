@@ -12,13 +12,10 @@ def news(URL, DOMAIN):
         
         soup = BeautifulSoup(leer, 'html.parser')
 
-        title = soup.find('div', {'class': 'c4Stqc'})
-
         get_news = []
-        for r_title in title.find_all('article', class_='IFHyqb DeXSAc'):
-
-            get_news.append(f'*{r_title.div.h4.text}: { DOMAIN + r_title.div.a["href"]}')
-
+        for r_title in soup.find_all('article', {'jsmodel': 'hT8rr'}, limit=15):
+            get_news.append(f'*{r_title.h4.text}: { DOMAIN + r_title.a["href"]}')
+        
         return get_news
         
 if __name__ == '__main__':
@@ -26,6 +23,7 @@ if __name__ == '__main__':
     print('Google News - Principales noticias Sr Yonier')
     print('='*130)
     
-    for new in news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/topics'):
+    # news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/')
+    for new in news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/'):
         print(new, '\n')
         print('='*130)

@@ -34,7 +34,7 @@ def get_muylinux_news(message):
 def get_google_news(message):
     print('Google -', var_msj_news)
     print('='*130)
-    for new in news_goole.news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/topics'):
+    for new in news_goole.news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/articles/'):
         bot.send_message(message.chat.id, new)
 
 def get_xatakandroid_news(message):

@@ -23,7 +23,7 @@ def get_applesfera_news(message):
 def get_distrowatch_news(message):
     print('Distrowatch -', var_msj_news)
     print('='*130)
-    for new in news_distrowatch.news('https://distrowatch.com/'):
+    for new in news_distrowatch.get_distrowatch_news(message):
         bot.send_message(message.chat.id, new)
 
 def get_fayer_news(message):
@@ -106,4 +106,4 @@ if __name__ == '__main__':
     print('='*100)
     print('Iniciando Bot')
     print('='*100)
-    bot.infinity_polling() #ESCUCHA O COMPRUEBA SI SE RECIBEN MSJ NUEVOS, TODO SE DETIENE AQUI, 
+    bot.infinity_polling() #ESCUCHA O COMPRUEBA SI SE RECIBEN MSJ NUEVOS, TODO SE DETIENE AQUI,

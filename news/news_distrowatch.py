@@ -31,9 +31,7 @@ def parse_news(html_content, URL):
     return get_news
 
 def get_distrowatch_news(message):
-    print('Distrowatch - Principales noticias Sr Yonier')
-    print('='*130)
-    
+    """Función para obtener las noticias de Distrowatch."""
     # Descargar el HTML
     html_content = download_html('https://distrowatch.com/')
     
@@ -41,11 +39,6 @@ def get_distrowatch_news(message):
     if html_content is not None:
         # Parsear el HTML para obtener las noticias
         news_list = parse_news(html_content, 'https://distrowatch.com/')
-        
-        # Imprimir las noticias
-        for new in news_list:
-            print(new, '\n')
-            print('='*130)
-
-if __name__ == '__main__':
-    get_distrowatch_news(None)
+        return news_list
+    else:
+        return []

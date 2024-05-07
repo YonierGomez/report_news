@@ -30,8 +30,7 @@ def parse_news(html_content, URL):
 
     return get_news
 
-if __name__ == '__main__':
-    print('='*130)
+def get_distrowatch_news(message):
     print('Distrowatch - Principales noticias Sr Yonier')
     print('='*130)
     
@@ -47,3 +46,6 @@ if __name__ == '__main__':
         for new in news_list:
             print(new, '\n')
             print('='*130)
+
+if __name__ == '__main__':
+    get_distrowatch_news(None)

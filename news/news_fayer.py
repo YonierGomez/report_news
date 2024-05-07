@@ -16,7 +16,7 @@ def news(URL, DOMAIN):
         title = soup.find('div', {'class': 'container layout-section'})
 
         get_news = []
-        for r_title in title.find_all('div', class_='list-item'):
+        for r_title in title.find_all('div', class_='b-results-list'):
             # Formatea y agrega cada noticia a la lista de get_news
             get_news.append(f"* {r_title.h2.text}: {DOMAIN + r_title.a['href']}")
 

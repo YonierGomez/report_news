@@ -1,28 +1,33 @@
 import requests
 from bs4 import BeautifulSoup
 
-def news(URL):
-    """Funcion para obtener noticias de Distrowatch"""
+def download_html(URL):
+    """Función para descargar el HTML de la página web."""
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Referer': 'https://www.google.com/'
     }
     
-    r = requests.get(URL, headers=headers)
+    try:
+        with requests.Session() as session:
+            response = session.get(URL, headers=headers)
+            response.raise_for_status()
+            return response.text
+    except requests.exceptions.RequestException as e:
+        print('Error al descargar el HTML:', e)
+        return None
+
+def parse_news(html_content, URL):
+    """Función para analizar el HTML y obtener las noticias."""
+    soup = BeautifulSoup(html_content, 'html.parser')
 
     get_news = []
-    if r.ok:
-        r_content = r.text
-        leer = r.text
-        
-        soup = BeautifulSoup(leer, 'html.parser')
-        for title in soup.find_all('td', class_='NewsHeadline'):
-            link = title.find('a', href=True)
-            if link is not None:
-                get_news.append(f'*{title.text.strip()}: {URL + link["href"]}')
-        
-    else:
-        print('No fue posible hacer la solicitud', r.text)
-        
+    for title in soup.find_all('td', class_='NewsHeadline'):
+        link = title.find('a', href=True)
+        if link is not None:
+            get_news.append(f'*{title.text.strip()}: {URL + link["href"]}')
+
     return get_news
 
 if __name__ == '__main__':
@@ -30,8 +35,15 @@ if __name__ == '__main__':
     print('Distrowatch - Principales noticias Sr Yonier')
     print('='*130)
     
-    # news('https://distrowatch.com/')
+    # Descargar el HTML
+    html_content = download_html('https://distrowatch.com/')
     
-    for new in news('https://distrowatch.com/'):
-        print(new, '\n')
-        print('='*130)
+    # Verificar si se descargó el HTML correctamente
+    if html_content is not None:
+        # Parsear el HTML para obtener las noticias
+        news_list = parse_news(html_content, 'https://distrowatch.com/')
+        
+        # Imprimir las noticias
+        for new in news_list:
+            print(new, '\n')
+            print('='*130)

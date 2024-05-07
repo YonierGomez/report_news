@@ -24,12 +24,12 @@ jobs:
 
     - name: Build and push the Docker image latest
       run: |
-        docker build . --file Dockerfile --tag neytor/report_news:arm &&
+        docker build . --file Dockerfile-arm --tag neytor/report_news:arm &&
         docker image ls &&
         docker push neytor/report_news:arm
     
     - name: Build and push the Docker image with tag
       run: |
-        docker build . --file Dockerfile --tag neytor/report_news:arm.v1 &&
+        docker build . --file Dockerfile-arm --tag neytor/report_news:arm.v1 &&
         docker image ls &&
         docker push neytor/report_news:arm.v1

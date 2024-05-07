@@ -1,0 +1,20 @@
+FROM arm64v8/alpine
+
+LABEL maintainer Yonier Gómez
+
+ENV user=botpro \
+    TOKEN="6493247672:AAELFqWHbi2EbYKvrrRc6Wg-N_U8-9YaC4w" \
+    CMD="source /opt/prod/bin/activate"
+
+RUN apk update && apk upgrade && apk add --no-cache python3 py3-pip && \
+    python3 -m venv /opt/prod && $CMD && pip install --upgrade pip && \
+    pip3 install requests telebot bs4 && adduser $user -D -h /app
+
+WORKDIR /app
+
+USER $user
+
+ADD news ./news 
+ADD bot.py .
+
+ENTRYPOINT ["sh", "-c", "$CMD && python3 bot.py"]

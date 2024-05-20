@@ -7,6 +7,7 @@ from news import (
     news_xataka,
     news_xataka_android,
     news_distrowatch,
+    news_genbeta,
     config
 )
 
@@ -56,6 +57,12 @@ def get_xataka_news(message):
     for new in news_xataka.news('https://www.xataka.com/'):
         bot.send_message(message.chat.id, new)
 
+def get_genbeta_news(message):
+    print('genbeta actualidad -', var_msj_news)
+    print('='*130)
+    for new in news_genbeta.news('https://www.genbeta.com/categoria/actualidad'):
+        bot.send_message(message.chat.id, new)
+
 def get_cmd(message):
     print('Bienvenido al bot de Yonier')
     print('='*130)
@@ -70,6 +77,7 @@ command_functions = {
     '/muylinux': get_muylinux_news,
     '/xatakandroid': get_xatakandroid_news,
     '/xataka': get_xataka_news,
+    '/genbeta': get_genbeta_news,
     '/start': get_cmd
 }
 
@@ -101,6 +109,7 @@ if __name__ == '__main__':
         telebot.types.BotCommand("/muylinux", "Noticias - GNU/Linux"),
         telebot.types.BotCommand("/xatakandroid", "Noticias - Android"),
         telebot.types.BotCommand("/xataka", "Noticias - Xataka"),
+        telebot.types.BotCommand("/genbeta", "Noticias - genbeta actualidad"),
         telebot.types.BotCommand("/start", "Bienvenido"),
     ])
     print('='*100)

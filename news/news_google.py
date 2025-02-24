@@ -13,10 +13,10 @@ def news(URL, DOMAIN):
         soup = BeautifulSoup(leer, 'html.parser')
 
         get_news = []
-        for r_title in soup.find_all('article', {'jsmodel': 'hT8rr'}, limit=15):
+        for r_title in soup.find_all(class_='PO9Zff', limit=15):
             url = DOMAIN + r_title.a["href"]
             url = url.replace("./articles/", "")
-            get_news.append(f'*{r_title.text}: {url}')
+            get_news.append(f'* {r_title.text}: {url}')
             # get_news.append(f'*{r_title.h4.text}: {url}')
         
         return get_news

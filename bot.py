@@ -8,6 +8,7 @@ from news import (
     news_xataka_android,
     news_distrowatch,
     news_genbeta,
+    news_hipertextual,
     config
 )
 
@@ -62,6 +63,12 @@ def get_genbeta_news(message):
     print('='*130)
     for new in news_genbeta.news('https://www.genbeta.com/categoria/actualidad'):
         bot.send_message(message.chat.id, new)
+        
+def get_hipertextual_news(message):
+    print('Hipertextual -', var_msj_news)
+    print('='*130)
+    for new in news_hipertextual.news('https://hipertextual.com/tecnologia'):
+        bot.send_message(message.chat.id, new)
 
 def get_cmd(message):
     print('Bienvenido al bot de Yonier')
@@ -78,6 +85,7 @@ command_functions = {
     '/xatakandroid': get_xatakandroid_news,
     '/xataka': get_xataka_news,
     '/genbeta': get_genbeta_news,
+    '/hipertextual': get_hipertextual_news,
     '/start': get_cmd
 }
 
@@ -110,6 +118,7 @@ if __name__ == '__main__':
         telebot.types.BotCommand("/xatakandroid", "Noticias - Android"),
         telebot.types.BotCommand("/xataka", "Noticias - Xataka"),
         telebot.types.BotCommand("/genbeta", "Noticias - genbeta actualidad"),
+        telebot.types.BotCommand("/hipertextual", "Noticias - Hipertextual"),
         telebot.types.BotCommand("/start", "Bienvenido"),
     ])
     print('='*100)

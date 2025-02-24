@@ -8,7 +8,7 @@ ENV user=botpro \
 
 RUN apk update && apk upgrade && apk add --no-cache python3 py3-pip && \
     python3 -m venv /opt/prod && $CMD && pip install --upgrade pip && \
-    pip3 install requests telebot bs4 && adduser $user -D -h /app
+    pip3 install requests telebot bs4 selenium && adduser $user -D -h /app
 
 WORKDIR /app
 

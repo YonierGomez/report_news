@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup  # Importar BeautifulSoup
 import time
 
-def get_distrowatch_news():
+def get_distrowatch_news(message):
     URL = 'https://distrowatch.com/'
     
     # Configurar Selenium (asegúrate de tener el driver correcto instalado, por ejemplo, chromedriver)

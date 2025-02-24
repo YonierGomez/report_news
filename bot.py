@@ -6,7 +6,7 @@ from news import (
     news_muylinux,
     news_xataka,
     news_xataka_android,
-    news_distrowatch,
+    # news_distrowatch,
     news_genbeta,
     news_hipertextual,
     config
@@ -22,11 +22,11 @@ def get_applesfera_news(message):
     for new in news_apple_sfera.news('https://www.applesfera.com/'):
         bot.send_message(message.chat.id, new)
 
-def get_distrowatch_news(message):
-    print('Distrowatch -', var_msj_news)
-    print('='*130)
-    for new in news_distrowatch.get_distrowatch_news(message):
-        bot.send_message(message.chat.id, new)
+# def get_distrowatch_news(message):
+#     print('Distrowatch -', var_msj_news)
+#     print('='*130)
+#     for new in news_distrowatch.get_distrowatch_news(message):
+#         bot.send_message(message.chat.id, new)
 
 def get_fayer_news(message):
     print('Fayer Wayer -', var_msj_news)
@@ -78,7 +78,7 @@ def get_cmd(message):
 # Diccionario que mapea comandos a funciones
 command_functions = {
     '/applesfera': get_applesfera_news,
-    '/distrowatch': get_distrowatch_news,
+    # '/distrowatch': get_distrowatch_news,
     '/fayer': get_fayer_news,
     '/google': get_google_news,
     '/muylinux': get_muylinux_news,
@@ -111,7 +111,7 @@ def no_found_command(message):
 if __name__ == '__main__':
     bot.set_my_commands([
         telebot.types.BotCommand("/applesfera", "Noticias - Apple"),
-        telebot.types.BotCommand("/distrowatch", "Noticias - Distro Linux"),
+        # telebot.types.BotCommand("/distrowatch", "Noticias - Distro Linux"),
         telebot.types.BotCommand("/fayer", "Noticias - Fayer Wayer"),
         telebot.types.BotCommand("/google", "Noticias - Google Tecnología"),
         telebot.types.BotCommand("/muylinux", "Noticias - GNU/Linux"),

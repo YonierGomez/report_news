@@ -1,4 +1,4 @@
-FROM alpine
+FROM alpine:latest
 
 LABEL maintainer="Yonier Gómez"
 
@@ -6,23 +6,38 @@ ENV user=botpro \
     TOKEN="6493247672:AAELFqWHbi2EbYKvrrRc6Wg-N_U8-9YaC4w" \
     CMD="source /opt/prod/bin/activate"
 
-# Instalar dependencias del sistema y Python
+# Install required packages including Chrome and ChromeDriver
 RUN apk update && apk upgrade && \
-    apk add --no-cache python3 py3-pip chromium chromium-chromedriver && \
-    python3 -m venv /opt/prod && \
-    /opt/prod/bin/pip install --upgrade pip && \
-    /opt/prod/bin/pip install requests telebot bs4 selenium
+    apk add --no-cache \
+    python3 \
+    py3-pip \
+    chromium \
+    chromium-chromedriver \
+    xvfb \
+    dbus \
+    ttf-freefont \
+    mesa-gl \
+    mesa-dri-gallium \
+    udev \
+    && python3 -m venv /opt/prod \
+    && source /opt/prod/bin/activate \
+    && pip install --upgrade pip \
+    && pip3 install requests telebot bs4 selenium \
+    && adduser $user -D -h /app
 
-# Crear un usuario no root
-RUN adduser -D -h /app $user
+# Set display port to avoid crash
+ENV DISPLAY=:99
 
 WORKDIR /app
 
-# Copiar los archivos de la aplicación
-COPY --chown=botpro:botpro news ./news
-COPY --chown=botpro:botpro bot.py .
-
 USER $user
 
-# Ejecutar la aplicación
-ENTRYPOINT ["sh", "-c", "/opt/prod/bin/python3 bot.py"]
+ADD news ./news 
+ADD bot.py .
+
+# Set Chrome options for running in container
+ENV PYTHONUNBUFFERED=1 \
+    CHROMEDRIVER_PATH=/usr/bin/chromedriver \
+    CHROME_BIN=/usr/bin/chromium-browser
+
+ENTRYPOINT ["sh", "-c", "$CMD && python3 bot.py"]

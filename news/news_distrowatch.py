@@ -1,9 +1,4 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from bs4 import BeautifulSoup  # Importar BeautifulSoup
-import time
-
-def get_distrowatch_news():
+def get_distrowatch_news(message):
     URL = 'https://distrowatch.com/'
     
     # Configurar Selenium (asegúrate de tener el driver correcto instalado, por ejemplo, chromedriver)
@@ -33,14 +28,9 @@ def get_distrowatch_news():
             full_url = f"https://distrowatch.com{link_url}"
             news_list.append(f"* {title}: {full_url}")
 
-    return news_list
-
-if __name__ == '__main__':
-    news = get_distrowatch_news()
-
-    if news:
-        print("Noticias obtenidas:")
-        for item in news:
-            print(item)
+    # Enviar las noticias al chat
+    if news_list:
+        for news in news_list:
+            bot.send_message(message.chat.id, news)
     else:
-        print("No se encontraron noticias.")
+        bot.send_message(message.chat.id, "No se encontraron noticias.")

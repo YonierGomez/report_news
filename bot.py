@@ -2,7 +2,7 @@ import telebot, threading
 from news import (
     news_apple_sfera,
     news_fayer,
-    news_goole,
+    news_google,
     news_muylinux,
     news_xataka,
     news_xataka_android,
@@ -43,7 +43,7 @@ def get_muylinux_news(message):
 def get_google_news(message):
     print('Google -', var_msj_news)
     print('='*130)
-    for new in news_goole.news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/articles/'):
+    for new in news_google.news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/articles/'):
         bot.send_message(message.chat.id, new)
 
 def get_xatakandroid_news(message):

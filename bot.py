@@ -1,15 +1,15 @@
 import telebot, threading
 from news import (
     news_apple_sfera,
-    news_muylinux,
     news_fayer,
-    news_hipertextual,
-    news_computerhoy,
-    news_genbeta,
-    news_xataka,
     news_google,
+    news_muylinux,
+    news_xataka,
     news_xataka_android,
     # news_distrowatch,
+    news_genbeta,
+    news_hipertextual,
+    news_computerhoy,
     config
 )
 
@@ -70,13 +70,12 @@ def get_hipertextual_news(message):
     print('='*130)
     for new in news_hipertextual.news('https://hipertextual.com/tecnologia'):
         bot.send_message(message.chat.id, new)
-
+        
 def get_computerhoy_news(message):
     print('computerhoy -', var_msj_news)
     print('='*130)
     for new in news_computerhoy.news('https://computerhoy.20minutos.es/'):
         bot.send_message(message.chat.id, new)
-
 
 def get_cmd(message):
     print('Bienvenido al bot de Yonier')
@@ -86,16 +85,16 @@ def get_cmd(message):
 # Diccionario que mapea comandos a funciones
 command_functions = {
     '/applesfera': get_applesfera_news,
-    '/hipertextual': get_hipertextual_news,
-    '/computerhoy': get_computerhoy_news,
-    '/muylinux': get_muylinux_news,
-    '/xatakandroid': get_xatakandroid_news,
-    '/genbeta': get_genbeta_news,
-    '/xataka': get_xataka_news,
+    # '/distrowatch': get_distrowatch_news,
     '/fayer': get_fayer_news,
     '/google': get_google_news,
+    '/muylinux': get_muylinux_news,
+    '/xatakandroid': get_xatakandroid_news,
+    '/xataka': get_xataka_news,
+    '/genbeta': get_genbeta_news,
+    '/hipertextual': get_hipertextual_news,
+    '/computerhoy': get_computerhoy_news,
     '/start': get_cmd
-    # '/distrowatch': get_distrowatch_news,
 }
 
 comandos_sin_slash = [comando[1:] for comando in command_functions.keys()]
@@ -120,8 +119,9 @@ def no_found_command(message):
 if __name__ == '__main__':
     bot.set_my_commands([
         telebot.types.BotCommand("/applesfera", "Noticias - Apple"),
+        telebot.types.BotCommand("/computerhoy", "Noticias - computerhoy"),
         telebot.types.BotCommand("/hipertextual", "Noticias - Hipertextual"),
-        telebot.types.BotCommand("/Computerhoy", "Noticias - Computerhoy"),
+        # telebot.types.BotCommand("/distrowatch", "Noticias - Distro Linux"),
         telebot.types.BotCommand("/fayer", "Noticias - Fayer Wayer"),
         telebot.types.BotCommand("/muylinux", "Noticias - GNU/Linux"),
         telebot.types.BotCommand("/xatakandroid", "Noticias - Android"),
@@ -129,7 +129,6 @@ if __name__ == '__main__':
         telebot.types.BotCommand("/genbeta", "Noticias - genbeta actualidad"),
         telebot.types.BotCommand("/google", "Noticias - Google Tecnología"),
         telebot.types.BotCommand("/start", "Bienvenido"),
-        # telebot.types.BotCommand("/distrowatch", "Noticias - Distro Linux"),
     ])
     print('='*100)
     print('Iniciando Bot')

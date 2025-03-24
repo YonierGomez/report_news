@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 
 
 def news(URL):
-    """Funcion para obtener noticias de Xataka"""
+    """Funcion para obtener noticias de Hipertextual"""
     r = requests.get(URL)
 
     if r.ok:

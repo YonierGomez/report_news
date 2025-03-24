@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def get_computerhoy_news(URL):
+def news(URL):
     """Funcion para obtener noticias de Computer hoy"""
     r = requests.get(URL)
 
@@ -22,6 +22,6 @@ if __name__ == '__main__':
     print('='*130)
     print('Computer hoy - Principales noticias Sr Yonier')
     print('='*130)
-    for new in get_computerhoy_news('https://computerhoy.20minutos.es/'):
+    for new in news('https://computerhoy.20minutos.es/'):
         print(new, '\n')
         print('='*130)

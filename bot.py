@@ -120,7 +120,6 @@ def no_found_command(message):
 if __name__ == '__main__':
     bot.set_my_commands([
         telebot.types.BotCommand("/applesfera", "Noticias - Apple"),
-        # telebot.types.BotCommand("/distrowatch", "Noticias - Distro Linux"),
         telebot.types.BotCommand("/hipertextual", "Noticias - Hipertextual"),
         telebot.types.BotCommand("/Computerhoy", "Noticias - Computerhoy"),
         telebot.types.BotCommand("/fayer", "Noticias - Fayer Wayer"),
@@ -130,6 +129,7 @@ if __name__ == '__main__':
         telebot.types.BotCommand("/genbeta", "Noticias - genbeta actualidad"),
         telebot.types.BotCommand("/google", "Noticias - Google Tecnología"),
         telebot.types.BotCommand("/start", "Bienvenido"),
+        # telebot.types.BotCommand("/distrowatch", "Noticias - Distro Linux"),
     ])
     print('='*100)
     print('Iniciando Bot')

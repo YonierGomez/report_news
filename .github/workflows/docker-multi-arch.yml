@@ -1,0 +1,150 @@
+name: Docker Image CI for report_news (multi-arch)
+
+on:
+  schedule:
+    - cron: '0 8 * * 1' # Cada lunes a las 8:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check_and_build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: Download codigo from repo
+
+      - name: Get latest Python version from Alpine
+        id: python_version
+        run: |
+          PYTHON_VERSION=$(docker run --rm alpine:latest sh -c \
+            "apk update > /dev/null 2>&1 && apk list python3 2>/dev/null | grep '^python3-' | head -1 | sed 's/python3-\([^ ]*\).*/\1/'")
+          echo "version=$PYTHON_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Python version in Alpine: $PYTHON_VERSION"
+
+      - name: Get latest release tag from repo
+        id: latest_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LATEST_TAG=$(gh release view --json tagName -q '.tagName' 2>/dev/null || echo "none")
+          echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+          echo "Latest release tag: $LATEST_TAG"
+
+      - name: Compare versions
+        id: compare
+        run: |
+          PYTHON="v${{ steps.python_version.outputs.version }}"
+          LATEST="${{ steps.latest_release.outputs.tag }}"
+          echo "Python: $PYTHON vs Latest release: $LATEST"
+          if [ "$PYTHON" != "$LATEST" ]; then
+            echo "new_version=true" >> "$GITHUB_OUTPUT"
+            echo "Nueva version detectada"
+          else
+            echo "new_version=false" >> "$GITHUB_OUTPUT"
+            echo "Sin cambios"
+          fi
+
+      - name: Set up QEMU
+        if: steps.compare.outputs.new_version == 'true'
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        if: steps.compare.outputs.new_version == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker Login
+        if: steps.compare.outputs.new_version == 'true'
+        uses: docker/login-action@v4
+        with:
+          registry: docker.io
+          username: ${{ secrets.USER_HUB }}
+          password: ${{ secrets.PASS_HUB }}
+
+      - name: Build and push Docker image
+        if: steps.compare.outputs.new_version == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: true
+          tags: |
+            neytor/report_news:latest
+            neytor/report_news:${{ steps.python_version.outputs.version }}
+
+      - name: Get Python release notes
+        if: steps.compare.outputs.new_version == 'true'
+        id: changelog
+        run: |
+          VERSION="${{ steps.python_version.outputs.version }}"
+          # Extraer version base sin -rN de Alpine (3.12.5-r0 -> 3.12.5)
+          PYTHON_BASE=$(echo "$VERSION" | sed 's/-r[0-9]*//')
+          # Extraer major.minor (3.12.5 -> 3.12)
+          MAJOR_MINOR=$(echo "$PYTHON_BASE" | grep -oP '^\d+\.\d+')
+
+          URL="https://docs.python.org/release/${PYTHON_BASE}/whatsnew/${MAJOR_MINOR}.html"
+          CHANGELOG_URL="https://docs.python.org/${MAJOR_MINOR}/whatsnew/changelog.html"
+
+          echo "Fetching release notes from: $URL"
+
+          NOTES=$(curl -sf "$URL" 2>/dev/null | \
+            sed -n '/<h1/,/<\/body>/p' | \
+            sed 's/<[^>]*>//g' | \
+            sed '/^$/d' | \
+            head -40 || echo "No se encontraron notas para esta versión.")
+
+          echo "$NOTES" > /tmp/python_changelog.txt
+          echo "url=$CHANGELOG_URL" >> "$GITHUB_OUTPUT"
+          echo "base_version=$PYTHON_BASE" >> "$GITHUB_OUTPUT"
+          echo "major_minor=$MAJOR_MINOR" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        if: steps.compare.outputs.new_version == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="v${{ steps.python_version.outputs.version }}"
+          VERSION="${{ steps.python_version.outputs.version }}"
+          CHANGELOG=$(cat /tmp/python_changelog.txt)
+          NOTES_URL="${{ steps.changelog.outputs.url }}"
+
+          cat > /tmp/release_notes.md << EOF
+          ## Python ${VERSION} on Alpine Linux
+
+          ### Novedades de Python ${{ steps.changelog.outputs.base_version }}
+
+          \`\`\`
+          ${CHANGELOG}
+          \`\`\`
+
+          > 📋 [Release notes completas](${NOTES_URL})
+
+          ### Docker tags
+
+          \`\`\`bash
+          docker pull neytor/report_news:latest
+          docker pull neytor/report_news:${VERSION}
+          \`\`\`
+
+          ### Arquitecturas soportadas
+
+          La imagen es multi-arch. Docker descarga la versión correcta automáticamente.
+
+          | Arquitectura | Plataforma | Comando para forzar |
+          |---|---|---|
+          | x86-64 | PCs, servidores | \`docker pull --platform linux/amd64 neytor/report_news\` |
+          | ARM64 | Raspberry Pi 3/4/5, Apple Silicon | \`docker pull --platform linux/arm64 neytor/report_news\` |
+          | ARMv7 | Raspberry Pi 2, IoT | \`docker pull --platform linux/arm/v7 neytor/report_news\` |
+
+          ### Uso rápido
+
+          \`\`\`bash
+          docker run -d --name report_news -e TOKEN="tu_token_telegram" neytor/report_news
+          \`\`\`
+          EOF
+
+          gh release create "$TAG" \
+            --title "report_news $VERSION" \
+            --notes-file /tmp/release_notes.md

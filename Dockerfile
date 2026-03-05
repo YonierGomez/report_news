@@ -1,9 +1,9 @@
 FROM alpine
 
-LABEL maintainer Yonier Gómez
+LABEL maintainer="Yonier Gómez"
 
 ENV user=botpro \
-    TOKEN="6493247672:AAELFqWHbi2EbYKvrrRc6Wg-N_U8-9YaC4w" \
+    TOKEN="" \
     CMD="source /opt/prod/bin/activate"
 
 RUN apk update && apk upgrade && apk add --no-cache python3 py3-pip && \
@@ -14,7 +14,7 @@ WORKDIR /app
 
 USER $user
 
-ADD news ./news 
+ADD news ./news
 ADD bot.py .
 
 ENTRYPOINT ["sh", "-c", "$CMD && python3 bot.py"]

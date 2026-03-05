@@ -1,12 +1,14 @@
 Web scrapping para obtener noticias a través de un bot en telegram, hecho en Python.
 ======================  
+
+🌐 **Landing:** [https://yoniergomez.github.io/report_news](https://yoniergomez.github.io/report_news) · 🏠 **Web:** [https://www.yonier.com](https://www.yonier.com)
+
 ## Referencia rápida
 * [¿Qué es web scraping?](#qué-es-web-scraping)
 * [¿Cuál es nuestro uso?](#cuál-es-nuestro-uso)
 * [¿Cómo usar esta imagen?](#cómo-usar-esta-imagen)
 * [Arquitectura soportada](#arquitectura-soportada)
 * [Variables](#variables)
-* [Uso en raspberry](#uso-en-raspberry)
 * [Te invito a visitar mi web](#te-invito-a-visitar-mi-web)
 
 
@@ -64,12 +66,14 @@ docker container run \
 ```
 
 ## Arquitectura soportada
-La arquitectura soportada es la siguiente:
 
-| Arquitectura | Disponible | Tag descarga |
-| ------------ | ---------- | ---------------------------- |
-| x86-64 | ✅ | docker pull neytor/report_news |
-| arm64 | ✅ | docker pull neytor/report_news:arm |
+La imagen es multi-arch. Docker descarga la versión correcta automáticamente.
+
+| Arquitectura | Plataforma | Dispositivos |
+| ------------ | ---------------- | ----------------------------------- |
+| x86-64 | `linux/amd64` | PCs, servidores |
+| ARM64 | `linux/arm64` | Raspberry Pi 3/4/5, Apple Silicon |
+| ARMv7 | `linux/arm/v7` | Raspberry Pi 2, IoT |
 
 ## Variables
 Puedes pasar las siguientes variables al crear el contenedor
@@ -84,18 +88,6 @@ Puedes pasar las siguientes variables al crear el contenedor
 
 
 Se recomienda pasar la variable `TOKEN`a través de un archivo.
-
-## Uso en Raspberry
-
-Puedes utilizarla para cualquier raspberry pi
-
-```bash
-docker container run \
-  --name report_news -e TOKEN=tu_token_del_bot_de_telegram
-  -d neytor/report_news:arm
-```
-
-[![Try in PWD](https://github.com/play-with-docker/stacks/raw/cff22438cb4195ace27f9b15784bbb497047afa7/assets/images/button.png)](http://play-with-docker.com?stack=https://raw.githubusercontent.com/docker-library/docs/db214ae34137ab29c7574f5fbe01bc4eaea6da7e/wordpress/stack.yml)
 
 ## Te invito a visitar mi web
 

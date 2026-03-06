@@ -110,6 +110,13 @@ jobs:
         run: |
           TAG="v${{ steps.alpine_version.outputs.version }}"
           VERSION="${{ steps.alpine_version.outputs.version }}"
+
+          # Si el release ya existe (force_build), no crear otro
+          if gh release view "$TAG" &>/dev/null; then
+            echo "Release $TAG ya existe, omitiendo creación"
+            exit 0
+          fi
+
           CHANGELOG=$(cat /tmp/alpine_changelog.txt)
           NOTES_URL="${{ steps.changelog.outputs.url }}"
 

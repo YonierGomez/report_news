@@ -1,0 +1,13 @@
+services:
+  report_news:
+    build: .
+    container_name: report_news
+    restart: unless-stopped
+    environment:
+      - TOKEN=${TOKEN}
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import requests; requests.get('https://api.telegram.org', timeout=5)"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

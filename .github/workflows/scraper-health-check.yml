@@ -1,0 +1,98 @@
+name: Scraper Health Check
+
+on:
+  schedule:
+    - cron: '0 10 * * 1'  # Cada lunes a las 10:00 UTC
+  workflow_dispatch:
+
+jobs:
+  health_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 googlenewsdecoder
+
+      - name: Run scraper health check
+        id: check
+        run: |
+          python3 << 'PYEOF'
+          import sys
+          sys.path.insert(0, '.')
+
+          from news import (
+              news_xataka, news_genbeta, news_hipertextual, news_computerhoy,
+              news_omicrono, news_fayer, news_apple_sfera, news_xataka_android,
+              news_muylinux, news_distrowatch, news_itsfoss, news_omgubuntu,
+              news_wwwhatsnew, news_microsiervos, news_arstechnica, news_google,
+              news_theverge, news_hackernews, news_techcrunch,
+              news_thehackernews, news_krebsonsecurity
+          )
+
+          scrapers = {
+              'Xataka': lambda: news_xataka.news('https://www.xataka.com/'),
+              'Genbeta': lambda: news_genbeta.news('https://www.genbeta.com/categoria/actualidad'),
+              'Hipertextual': lambda: news_hipertextual.news('https://hipertextual.com/tecnologia'),
+              'Computer Hoy': lambda: news_computerhoy.news('https://computerhoy.20minutos.es/'),
+              'Omicrono': lambda: news_omicrono.news('https://www.elespanol.com/omicrono/'),
+              'Fayer Wayer': lambda: news_fayer.news('https://www.fayerwayer.com/internet/', 'https://www.fayerwayer.com'),
+              'Apple Esfera': lambda: news_apple_sfera.news('https://www.applesfera.com/'),
+              'Xataka Android': lambda: news_xataka_android.news('https://www.xatakandroid.com/'),
+              'Muy Linux': lambda: news_muylinux.news('https://www.muylinux.com/'),
+              'DistroWatch': lambda: news_distrowatch.news('https://distrowatch.com/'),
+              'Its FOSS': lambda: news_itsfoss.news('https://itsfoss.com/'),
+              'OMG Ubuntu': lambda: news_omgubuntu.news('https://www.omgubuntu.co.uk/'),
+              'Wwwhats new': lambda: news_wwwhatsnew.news('https://wwwhatsnew.com/'),
+              'Microsiervos': lambda: news_microsiervos.news('https://www.microsiervos.com/'),
+              'Ars Technica': lambda: news_arstechnica.news('https://arstechnica.com/ai/'),
+              'The Verge': lambda: news_theverge.news('https://www.theverge.com/tech'),
+              'Hacker News': lambda: news_hackernews.news('https://news.ycombinator.com/'),
+              'TechCrunch': lambda: news_techcrunch.news('https://techcrunch.com/'),
+              'The Hacker News': lambda: news_thehackernews.news('https://thehackernews.com/'),
+              'Krebs on Security': lambda: news_krebsonsecurity.news('https://krebsonsecurity.com/'),
+              'Google News': lambda: news_google.news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/'),
+          }
+
+          failed = []
+          for name, fetcher in scrapers.items():
+              try:
+                  result = fetcher()
+                  if not result or len(result) == 0:
+                      failed.append(f'{name}: sin resultados')
+                      print(f'❌ {name}: sin resultados')
+                  else:
+                      print(f'✅ {name}: {len(result)} noticias')
+              except Exception as e:
+                  failed.append(f'{name}: {e}')
+                  print(f'❌ {name}: {e}')
+
+          if failed:
+              print(f'\n::set-output name=failed::{"; ".join(failed)}')
+              print(f'\nFailed: {len(failed)}/{len(scrapers)}')
+              # No falla el job, solo reporta
+          else:
+              print(f'\n✅ Todos los scrapers funcionan correctamente')
+          PYEOF
+
+      - name: Create issue if scrapers failed
+        if: steps.check.outputs.failed != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FAILED="${{ steps.check.outputs.failed }}"
+          gh issue create \
+            --title "⚠️ Scrapers con problemas - $(date +%Y-%m-%d)" \
+            --body "Los siguientes scrapers fallaron en el health check semanal:
+
+          \`\`\`
+          $FAILED
+          \`\`\`
+
+          Revisar y corregir los selectores CSS o URLs." \
+            --label "bug"

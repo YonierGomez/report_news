@@ -7,62 +7,70 @@ Web scrapping para obtener noticias a través de un bot en telegram, hecho en Py
 
 ## Referencia rápida
 * [¿Qué es web scraping?](#qué-es-web-scraping)
-* [¿Cuál es nuestro uso?](#cuál-es-nuestro-uso)
+* [Fuentes de noticias](#fuentes-de-noticias)
+* [Funcionalidades](#funcionalidades)
 * [¿Cómo usar esta imagen?](#cómo-usar-esta-imagen)
 * [Arquitectura soportada](#arquitectura-soportada)
 * [Variables](#variables)
-* [Te invito a visitar mi web](#te-invito-a-visitar-mi-web)
-
 
 ## ¿Qué es web scraping?
 
-### Definición Wikipedia
-
-Web scraping o raspado web es una técnica utilizada mediante programas de software para extraer información de sitios web.​ Usualmente, estos programas simulan la navegación de un humano en la World Wide Web ya sea utilizando el protocolo HTTP manualmente, o incrustando un navegador en una aplicación.  
+Web scraping o raspado web es una técnica utilizada mediante programas de software para extraer información de sitios web.
 
 > [Web scrapping Wikipedia](https://es.wikipedia.org/wiki/Web_scraping)
 
+## Fuentes de noticias
 
-![webscrapping](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGI2maqCgnSssWxwTySWiW-vzs0JXpyW0oXg&usqp=CAU)
-  
+| Categoría | Fuentes |
+|---|---|
+| 💻 Tecnología | Xataka, Genbeta, Hipertextual, Computer Hoy, Omicrono, Fayer Wayer |
+| 📱 Apple & Android | Apple Esfera, Xataka Android |
+| 🐧 Linux & Open Source | Muy Linux, DistroWatch, Its FOSS, OMG! Ubuntu |
+| 🧠 IA & Ciencia | Wwwhats new, Microsiervos, Ars Technica AI |
+| 🌍 Internacional | The Verge, Hacker News, TechCrunch |
+| 🔒 Seguridad | The Hacker News, Krebs on Security |
+| 📰 Agregadores | Google News |
 
-## ¿Cuál es nuestro uso?
+## Funcionalidades
 
-Este scraper fue construido en python y tiene como finalidad obtener noticias de las fuentes ["applesfera", "fayer wayer", "google news", "muylinux", "xataka", "xataka_android"] usando un bot en Telegram.
-  
+- 🔘 **Menú interactivo** con botones inline de Telegram (no solo comandos de texto)
+- 📚 `/todas <categoría>` para ver todas las fuentes de una categoría de un golpe
+- 🔍 `/buscar <término>` para buscar noticias por palabra clave en todas las fuentes
+- ⭐ `/favoritos` para guardar tus fuentes preferidas y consultarlas rápido
+- 📄 **Paginación** con botón "Ver más" si hay más de 10 noticias
+- ⚡ **Caché** de 15 minutos para respuestas rápidas sin re-scrapear
+- 🛡️ **Error handling** por fuente: si un scraper falla, el bot sigue funcionando
+- 📋 **Logging** estructurado con niveles (info/warning/error)
+- 🔗 **Preview de links** en Telegram (cada noticia se envía como mensaje individual)
+
 
 ## ¿Cómo usar esta imagen?
 
-Puede hacer uso de docker cli o docker compose
+### Requisitos
 
-### Requisitos indispensables
+Crea un BOT en Telegram y obtén el token.
 
-Crea un BOT en telegram y cuando ejecutes el contenedor llama a la variable `-e TOKEN=token_obtenido_del_bot"`
-  
 ### docker-compose (recomendado)
 
 ```yaml
----
-version: '3'
 services:
   report_news:
     image: neytor/report_news
-    container_name: report_new_container
-    restart: always
+    container_name: report_news
+    restart: unless-stopped
     environment:
-      - TOKEN=tu_token_del_bot_de_telegram #OBLIGATORIO
-      - user=botpro  #OPCIONAL
-...
+      - TOKEN=tu_token_del_bot_de_telegram
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import requests; requests.get('https://api.telegram.org', timeout=5)"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
 ```
-
-> Nota: Puedes reemplazar environment por env_file y pasarle un archivo .env como valor, recuerde que el archivo .env debe tener las variables deseadas.
 
 ### docker cli
 
 ```bash
-docker container run \
-   --name report_news -e TOKEN=tu_token_del_bot_de_telegram
-   -d neytor/report_news
+docker run -d --name report_news -e TOKEN=tu_token_del_bot neytor/report_news
 ```
 
 ## Arquitectura soportada
@@ -70,25 +78,24 @@ docker container run \
 La imagen es multi-arch. Docker descarga la versión correcta automáticamente.
 
 | Arquitectura | Plataforma | Dispositivos |
-| ------------ | ---------------- | ----------------------------------- |
+|---|---|---|
 | x86-64 | `linux/amd64` | PCs, servidores |
 | ARM64 | `linux/arm64` | Raspberry Pi 3/4/5, Apple Silicon |
 | ARMv7 | `linux/arm/v7` | Raspberry Pi 2, IoT |
 
 ## Variables
-Puedes pasar las siguientes variables al crear el contenedor
 
 | Variable | Función |
-| ------------- | ------------------------------------------------------------ |
-| `-e TOKEN` |**Obligatorio:** Es el token obtenido del BOT que creaste en TELEGRAM |
-| `-e user` | Define el usuario para login - por defecto es botpro |
- 
+|---|---|
+| `-e TOKEN` | **Obligatorio:** Token del BOT de Telegram |
+| `-e user` | Usuario del contenedor (default: botpro) |
 
-## Environment variables desde archivo (Docker secrets)
+## CI/CD
 
-
-Se recomienda pasar la variable `TOKEN`a través de un archivo.
+- **Docker build automático** cada lunes o al detectar nueva versión de Alpine Linux
+- **Health check semanal** de todos los scrapers con creación automática de issues si alguno falla
+- **Multi-arch build** con Docker Buildx (amd64, arm64, armv7)
 
 ## Te invito a visitar mi web
 
-Puedes ver nuevos eventos en [https://www.yonier.com/](https://www.yonier.com)
+[https://www.yonier.com](https://www.yonier.com)

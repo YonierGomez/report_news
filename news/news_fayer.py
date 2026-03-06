@@ -17,8 +17,7 @@ def news(URL, DOMAIN):
 
         get_news = []
         for r_title in title.find_all('div', class_='b-results-list'):
-            # Formatea y agrega cada noticia a la lista de get_news
-            get_news.append(f"* {r_title.h2.text}: {DOMAIN + r_title.a['href']}")
+            get_news.append((r_title.h2.text.strip(), DOMAIN + r_title.a['href']))
 
     return get_news  # Devuelve la lista de get_news
 

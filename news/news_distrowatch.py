@@ -1,46 +1,36 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from bs4 import BeautifulSoup  # Importar BeautifulSoup
-import time
+import requests
+from bs4 import BeautifulSoup
 
-def get_distrowatch_news(message):
-    URL = 'https://distrowatch.com/'
-    
-    # Configurar Selenium (asegúrate de tener el driver correcto instalado, por ejemplo, chromedriver)
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')  # Ejecutar en modo sin cabeza (sin interfaz gráfica)
-    options.add_argument('--disable-gpu')
-    options.add_argument('--no-sandbox')
-    driver = webdriver.Chrome(options=options)
 
-    driver.get(URL)
-    time.sleep(5)  # Esperar a que la página cargue
+def news(URL):
+    """Funcion para obtener noticias de DistroWatch"""
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+    }
 
-    # Extraer el contenido de la página
-    page_source = driver.page_source
-    driver.quit()
+    r = requests.get(URL, headers=headers)
 
-    # Parsear el contenido HTML con BeautifulSoup
-    soup = BeautifulSoup(page_source, 'html.parser')
-    news_list = []
+    if r.ok:
+        soup = BeautifulSoup(r.text, 'html.parser')
 
-    for headline in soup.find_all('td', class_='NewsHeadline'):
-        title = headline.get_text(strip=True)
-        link = headline.find('a', href=True)
+        get_news = []
+        for headline in soup.find_all('td', class_='NewsHeadline', limit=10):
+            title = headline.get_text(strip=True)
+            link = headline.find('a', href=True)
+            if link:
+                href = link['href']
+                if not href.startswith('http'):
+                    href = 'https://distrowatch.com/' + href
+                get_news.append((title, href))
 
-        if link:
-            link_url = link['href']
-            full_url = f"https://distrowatch.com{link_url}"
-            news_list.append(f"* {title}: {full_url}")
-
-    return news_list
+        return get_news
 
 if __name__ == '__main__':
-    news = get_distrowatch_news()
-
-    if news:
-        print("Noticias obtenidas:")
-        for item in news:
-            print(item)
-    else:
-        print("No se encontraron noticias.")
+    print('='*130)
+    print('DistroWatch - Principales noticias Sr Yonier')
+    print('='*130)
+    for new in news('https://distrowatch.com/'):
+        print(new, '\n')
+        print('='*130)

@@ -12,7 +12,7 @@ def news(URL):
             
         get_news = []
         for r_title in soup.find_all('h2', class_='abstract-title'):
-            get_news.append(f'* {r_title.a.text}: {r_title.a["href"]}')
+            get_news.append((r_title.a.text.strip(), r_title.a["href"]))
 
         return get_news
         

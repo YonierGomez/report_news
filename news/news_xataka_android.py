@@ -15,7 +15,7 @@ def news(URL):
 
         get_news = []
         for r_title in title.find_all('article', class_='recent-abstract abstract-article', limit=10):
-            get_news.append(f'* {r_title.h2.text}: {r_title.a["href"]}')
+            get_news.append((r_title.h2.text.strip(), r_title.a["href"]))
         
         return get_news
 

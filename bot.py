@@ -48,7 +48,7 @@ SOURCES = {
     '/arstechnica':  ('Ars Technica AI', '🧠', lambda: news_arstechnica.news('https://arstechnica.com/ai/')),
 
     # Agregadores
-    '/google':       ('Google News', '📰', lambda: news_google.news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/articles/')),
+    '/google':       ('Google News', '📰', lambda: news_google.news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/')),
 }
 
 CATEGORIES = {

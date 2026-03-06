@@ -1,7 +1,7 @@
 # ── Stage 1: Build dependencies ────────────────────────────────
 FROM alpine AS builder
 
-RUN apk add --no-cache python3 py3-pip && \
+RUN apk add --no-cache python3 py3-pip python3-dev gcc musl-dev && \
     python3 -m venv /opt/prod && \
     source /opt/prod/bin/activate && \
     pip install --no-cache-dir --upgrade pip && \

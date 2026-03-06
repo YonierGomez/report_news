@@ -7,14 +7,17 @@ def news(URL):
     r = requests.get(URL)
 
     if r.ok:
-        r_content = r.text
-        leer = r.text
-        
-        soup = BeautifulSoup(leer, 'html.parser')
+        soup = BeautifulSoup(r.text, 'html.parser')
 
         get_news = []
-        for r_title in soup.find_all(class_='teaser_teaser__gSQCt', limit=10):
-            get_news.append(f'* {r_title.h3.text}: {r_title.a["href"]}')
+        for article in soup.find_all('article', class_='c-article', limit=10):
+            heading = article.find(['h2', 'h3'])
+            link = article.find('a', href=True)
+            if heading and link:
+                href = link['href']
+                if not href.startswith('http'):
+                    href = 'https://computerhoy.20minutos.es' + href
+                get_news.append((heading.text.strip(), href))
 
         return get_news
 

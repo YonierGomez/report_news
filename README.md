@@ -29,7 +29,6 @@ Web scraping o raspado web es una técnica utilizada mediante programas de softw
 | 🧠 IA & Ciencia | Wwwhats new, Microsiervos, Ars Technica AI |
 | 🌍 Internacional | The Verge, Hacker News, TechCrunch |
 | 🔒 Seguridad | The Hacker News, Krebs on Security |
-| 📰 Agregadores | Google News |
 
 ## Funcionalidades
 

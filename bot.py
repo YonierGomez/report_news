@@ -6,7 +6,6 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from news import (
     news_apple_sfera,
     news_fayer,
-    news_google,
     news_muylinux,
     news_xataka,
     news_xataka_android,
@@ -88,8 +87,6 @@ SOURCES = {
     # Seguridad
     '/thehackernews': ('The Hacker News', '🔐', lambda: news_thehackernews.news('https://thehackernews.com/')),
     '/krebs':         ('Krebs on Security', '🛡️', lambda: news_krebsonsecurity.news('https://krebsonsecurity.com/')),
-    # Agregadores
-    '/google':       ('Google News', '📰', lambda: news_google.news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/')),
 }
 
 CATEGORIES = {
@@ -99,7 +96,6 @@ CATEGORIES = {
     '🧠 IA & Ciencia': ['/wwwhatsnew', '/microsiervos', '/arstechnica'],
     '🌍 Internacional': ['/theverge', '/hackernews', '/techcrunch'],
     '🔒 Seguridad': ['/thehackernews', '/krebs'],
-    '📰 Agregadores': ['/google'],
 }
 
 # Mapeo inverso: nombre de categoría corto -> key
@@ -112,7 +108,6 @@ CAT_KEYS = {
     'ciencia': '🧠 IA & Ciencia',
     'internacional': '🌍 Internacional',
     'seguridad': '🔒 Seguridad',
-    'agregadores': '📰 Agregadores',
 }
 
 

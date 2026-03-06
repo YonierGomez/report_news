@@ -17,7 +17,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4 googlenewsdecoder
+        run: pip install requests beautifulsoup4
 
       - name: Run scraper health check
         id: check
@@ -30,7 +30,7 @@ jobs:
               news_xataka, news_genbeta, news_hipertextual, news_computerhoy,
               news_omicrono, news_fayer, news_apple_sfera, news_xataka_android,
               news_muylinux, news_distrowatch, news_itsfoss, news_omgubuntu,
-              news_wwwhatsnew, news_microsiervos, news_arstechnica, news_google,
+              news_wwwhatsnew, news_microsiervos, news_arstechnica,
               news_theverge, news_hackernews, news_techcrunch,
               news_thehackernews, news_krebsonsecurity
           )
@@ -56,7 +56,6 @@ jobs:
               'TechCrunch': lambda: news_techcrunch.news('https://techcrunch.com/'),
               'The Hacker News': lambda: news_thehackernews.news('https://thehackernews.com/'),
               'Krebs on Security': lambda: news_krebsonsecurity.news('https://krebsonsecurity.com/'),
-              'Google News': lambda: news_google.news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/'),
           }
 
           failed = []
@@ -75,7 +74,6 @@ jobs:
           if failed:
               print(f'\n::set-output name=failed::{"; ".join(failed)}')
               print(f'\nFailed: {len(failed)}/{len(scrapers)}')
-              # No falla el job, solo reporta
           else:
               print(f'\n✅ Todos los scrapers funcionan correctamente')
           PYEOF

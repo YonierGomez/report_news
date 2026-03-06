@@ -4,6 +4,15 @@ on:
   schedule:
     - cron: '0 8 * * 1' # Cada lunes a las 8:00 UTC
   workflow_dispatch:
+    inputs:
+      force_build:
+        description: 'Forzar build y push aunque no haya nueva versión de Alpine'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
 
 permissions:
   contents: write
@@ -36,10 +45,11 @@ jobs:
         run: |
           ALPINE="v${{ steps.alpine_version.outputs.version }}"
           LATEST="${{ steps.latest_release.outputs.tag }}"
-          echo "Alpine: $ALPINE vs Latest release: $LATEST"
-          if [ "$ALPINE" != "$LATEST" ]; then
+          FORCE="${{ github.event.inputs.force_build }}"
+          echo "Alpine: $ALPINE vs Latest release: $LATEST (force: $FORCE)"
+          if [ "$ALPINE" != "$LATEST" ] || [ "$FORCE" = "true" ]; then
             echo "new_version=true" >> "$GITHUB_OUTPUT"
-            echo "Nueva version detectada"
+            echo "Build necesario"
           else
             echo "new_version=false" >> "$GITHUB_OUTPUT"
             echo "Sin cambios"

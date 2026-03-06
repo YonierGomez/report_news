@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Report News Bot - Noticias tech en Telegram</title>
-  <meta name="description" content="Bot de Telegram que recopila noticias de tecnología en español desde múltiples fuentes usando web scraping.">
+  <meta name="description" content="Bot de Telegram que recopila noticias de tecnología desde 20+ fuentes usando web scraping y Python.">
   <style>
     :root {
       --bg: #0f1117;
@@ -15,6 +15,8 @@
       --accent: #3b82f6;
       --accent-hover: #2563eb;
       --green: #22c55e;
+      --purple: #a855f7;
+      --orange: #f97316;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -26,200 +28,216 @@
     a { color: var(--accent); text-decoration: none; }
     a:hover { color: var(--accent-hover); }
 
-    /* Hero */
     .hero {
       text-align: center;
       padding: 5rem 1.5rem 3rem;
       max-width: 800px;
       margin: 0 auto;
     }
-    .hero h1 {
-      font-size: 2.8rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-    }
+    .hero h1 { font-size: 2.8rem; font-weight: 700; margin-bottom: 1rem; }
     .hero h1 span { color: var(--accent); }
-    .hero p {
-      font-size: 1.2rem;
-      color: var(--muted);
-      max-width: 600px;
-      margin: 0 auto 2rem;
-    }
+    .hero p { font-size: 1.2rem; color: var(--muted); max-width: 600px; margin: 0 auto 1.5rem; }
+    .badges { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+    .badges img { height: 22px; }
     .buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
     .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 500;
-      transition: background 0.2s;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1.5rem; border-radius: 8px;
+      font-size: 1rem; font-weight: 500; transition: all 0.2s;
     }
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-primary:hover { background: var(--accent-hover); color: #fff; }
     .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
     .btn-secondary:hover { background: var(--border); color: var(--text); }
-</style>
+
+    /* Features */
+    .features {
+      max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem;
+    }
+    .features h2 { text-align: center; font-size: 1.8rem; margin-bottom: 2rem; }
+    .feat-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;
+    }
+    .feat {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.25rem; transition: border-color 0.2s;
+    }
+    .feat:hover { border-color: var(--accent); }
+    .feat .icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .feat h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+    .feat p { font-size: 0.85rem; color: var(--muted); }
+
+    /* Sources */
+    .sources { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .sources h2 { text-align: center; font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .sources .subtitle { text-align: center; color: var(--muted); margin-bottom: 2rem; }
+    .cat-title {
+      font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.75rem;
+      padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+    }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem;
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1rem; transition: border-color 0.2s;
+    }
+    .card:hover { border-color: var(--accent); }
+    .card h3 { font-size: 0.95rem; margin-bottom: 0.2rem; }
+    .card .cmd {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.8rem; color: var(--green);
+    }
+
+    /* Quick start */
+    .quickstart { max-width: 700px; margin: 2rem auto; padding: 2rem 1.5rem; }
+    .quickstart h2 { text-align: center; font-size: 1.8rem; margin-bottom: 1.5rem; }
+    pre {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.25rem; overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.9rem; color: var(--green); margin-bottom: 1rem;
+    }
+
+    /* Arch table */
+    .arch { max-width: 700px; margin: 1rem auto 3rem; padding: 0 1.5rem; }
+    .arch h2 { text-align: center; font-size: 1.8rem; margin-bottom: 1.5rem; }
+    table {
+      width: 100%; border-collapse: collapse;
+      background: var(--surface); border-radius: 10px; overflow: hidden;
+    }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 500; font-size: 0.85rem; text-transform: uppercase; }
+    td code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.85rem; color: var(--accent); }
+
+    footer {
+      text-align: center; padding: 2rem 1.5rem;
+      color: var(--muted); font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
 </head>
 <body>
   <!-- Hero -->
   <section class="hero">
     <h1>📰 Report <span>News</span> Bot</h1>
-    <p>Bot de Telegram que recopila noticias de tecnología en español desde las mejores fuentes, usando web scraping y Python.</p>
+    <p>Bot de Telegram que recopila noticias de tecnología desde 20+ fuentes, con menú interactivo, búsqueda y favoritos.</p>
+    <div class="badges">
+      <img src="https://img.shields.io/github/stars/YonierGomez/report_news?style=flat-square" alt="Stars">
+      <img src="https://img.shields.io/docker/pulls/neytor/report_news?style=flat-square" alt="Docker Pulls">
+      <img src="https://img.shields.io/github/last-commit/YonierGomez/report_news?style=flat-square" alt="Last Commit">
+      <img src="https://img.shields.io/badge/python-3-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python">
+      <img src="https://img.shields.io/badge/Telegram-Bot-26A5E4?style=flat-square&logo=telegram&logoColor=white" alt="Telegram">
+    </div>
     <div class="buttons">
       <a href="https://github.com/YonierGomez/report_news" class="btn btn-primary">⭐ GitHub</a>
       <a href="https://hub.docker.com/r/neytor/report_news" class="btn btn-secondary">🐳 Docker Hub</a>
     </div>
   </section>
 
-  <style>
-    /* Sources */
-    .sources {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
-    }
-    .sources h2 {
-      text-align: center;
-      font-size: 1.8rem;
-      margin-bottom: 2rem;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1rem;
-    }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem;
-      transition: border-color 0.2s;
-    }
-    .card:hover { border-color: var(--accent); }
-    .card h3 { font-size: 1rem; margin-bottom: 0.25rem; }
-    .card .cmd {
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 0.85rem;
-      color: var(--green);
-    }
-    .card p { font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
 
-    /* Quick start */
-    .quickstart {
-      max-width: 700px;
-      margin: 2rem auto;
-      padding: 2rem 1.5rem;
-    }
-    .quickstart h2 {
-      text-align: center;
-      font-size: 1.8rem;
-      margin-bottom: 1.5rem;
-    }
-    pre {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem;
-      overflow-x: auto;
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 0.9rem;
-      color: var(--green);
-      margin-bottom: 1rem;
-    }
-
-    /* Arch table */
-    .arch {
-      max-width: 700px;
-      margin: 1rem auto 3rem;
-      padding: 0 1.5rem;
-    }
-    .arch h2 {
-      text-align: center;
-      font-size: 1.8rem;
-      margin-bottom: 1.5rem;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: var(--surface);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    th, td {
-      padding: 0.75rem 1rem;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-    th { color: var(--muted); font-weight: 500; font-size: 0.85rem; text-transform: uppercase; }
-    td code {
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 0.85rem;
-      color: var(--accent);
-    }
-
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 2rem 1.5rem;
-      color: var(--muted);
-      font-size: 0.85rem;
-      border-top: 1px solid var(--border);
-    }
-  </style>
+  <!-- Features -->
+  <section class="features">
+    <h2>✨ Funcionalidades</h2>
+    <div class="feat-grid">
+      <div class="feat">
+        <div class="icon">🔘</div>
+        <h3>Menú interactivo</h3>
+        <p>Botones inline de Telegram para navegar categorías sin escribir comandos</p>
+      </div>
+      <div class="feat">
+        <div class="icon">📚</div>
+        <h3>/todas</h3>
+        <p>Ver todas las fuentes de una categoría de un solo golpe</p>
+      </div>
+      <div class="feat">
+        <div class="icon">🔍</div>
+        <h3>/buscar</h3>
+        <p>Buscar noticias por palabra clave en todas las fuentes</p>
+      </div>
+      <div class="feat">
+        <div class="icon">⭐</div>
+        <h3>/favoritos</h3>
+        <p>Guarda tus fuentes preferidas y consúltalas rápido</p>
+      </div>
+      <div class="feat">
+        <div class="icon">⚡</div>
+        <h3>Caché inteligente</h3>
+        <p>15 min de caché para respuestas rápidas sin re-scrapear</p>
+      </div>
+      <div class="feat">
+        <div class="icon">🔗</div>
+        <h3>Preview de links</h3>
+        <p>Cada noticia se envía individual para que Telegram genere preview</p>
+      </div>
+      <div class="feat">
+        <div class="icon">🛡️</div>
+        <h3>Resiliente</h3>
+        <p>Si un scraper falla, el bot sigue funcionando con las demás fuentes</p>
+      </div>
+      <div class="feat">
+        <div class="icon">🏥</div>
+        <h3>Health check</h3>
+        <p>GitHub Action semanal que verifica scrapers y abre issues automáticos</p>
+      </div>
+      <div class="feat">
+        <div class="icon">📄</div>
+        <h3>Paginación</h3>
+        <p>Botón "Ver más" cuando hay más de 10 noticias disponibles</p>
+      </div>
+    </div>
+  </section>
 
   <!-- Sources -->
   <section class="sources">
     <h2>📡 Fuentes de noticias</h2>
+    <p class="subtitle">20 fuentes organizadas en 6 categorías</p>
+
+    <div class="cat-title">💻 Tecnología</div>
     <div class="grid">
-      <div class="card">
-        <h3>Apple Sfera</h3>
-        <div class="cmd">/applesfera</div>
-        <p>Noticias del ecosistema Apple</p>
-      </div>
-      <div class="card">
-        <h3>Xataka</h3>
-        <div class="cmd">/xataka</div>
-        <p>Tecnología y gadgets</p>
-      </div>
-      <div class="card">
-        <h3>Xataka Android</h3>
-        <div class="cmd">/xatakandroid</div>
-        <p>Noticias del mundo Android</p>
-      </div>
-      <div class="card">
-        <h3>Muy Linux</h3>
-        <div class="cmd">/muylinux</div>
-        <p>Noticias GNU/Linux y open source</p>
-      </div>
-      <div class="card">
-        <h3>Genbeta</h3>
-        <div class="cmd">/genbeta</div>
-        <p>Software y actualidad tech</p>
-      </div>
-      <div class="card">
-        <h3>Google News</h3>
-        <div class="cmd">/google</div>
-        <p>Tecnología desde Google News CO</p>
-      </div>
-      <div class="card">
-        <h3>Hipertextual</h3>
-        <div class="cmd">/hipertextual</div>
-        <p>Ciencia y tecnología</p>
-      </div>
-      <div class="card">
-        <h3>Computer Hoy</h3>
-        <div class="cmd">/computerhoy</div>
-        <p>Reviews y noticias tech</p>
-      </div>
-      <div class="card">
-        <h3>Fayer Wayer</h3>
-        <div class="cmd">/fayer</div>
-        <p>Internet y tecnología LATAM</p>
-      </div>
+      <div class="card"><h3>Xataka</h3><div class="cmd">/xataka</div></div>
+      <div class="card"><h3>Genbeta</h3><div class="cmd">/genbeta</div></div>
+      <div class="card"><h3>Hipertextual</h3><div class="cmd">/hipertextual</div></div>
+      <div class="card"><h3>Computer Hoy</h3><div class="cmd">/computerhoy</div></div>
+      <div class="card"><h3>Omicrono</h3><div class="cmd">/omicrono</div></div>
+      <div class="card"><h3>Fayer Wayer</h3><div class="cmd">/fayer</div></div>
+    </div>
+
+    <div class="cat-title">📱 Apple & Android</div>
+    <div class="grid">
+      <div class="card"><h3>Apple Esfera</h3><div class="cmd">/applesfera</div></div>
+      <div class="card"><h3>Xataka Android</h3><div class="cmd">/xatakandroid</div></div>
+    </div>
+
+    <div class="cat-title">🐧 Linux & Open Source</div>
+    <div class="grid">
+      <div class="card"><h3>Muy Linux</h3><div class="cmd">/muylinux</div></div>
+      <div class="card"><h3>DistroWatch</h3><div class="cmd">/distrowatch</div></div>
+      <div class="card"><h3>It's FOSS</h3><div class="cmd">/itsfoss</div></div>
+      <div class="card"><h3>OMG! Ubuntu</h3><div class="cmd">/omgubuntu</div></div>
+    </div>
+
+    <div class="cat-title">🧠 IA & Ciencia</div>
+    <div class="grid">
+      <div class="card"><h3>Wwwhats new</h3><div class="cmd">/wwwhatsnew</div></div>
+      <div class="card"><h3>Microsiervos</h3><div class="cmd">/microsiervos</div></div>
+      <div class="card"><h3>Ars Technica AI</h3><div class="cmd">/arstechnica</div></div>
+    </div>
+
+    <div class="cat-title">🌍 Internacional</div>
+    <div class="grid">
+      <div class="card"><h3>The Verge</h3><div class="cmd">/theverge</div></div>
+      <div class="card"><h3>Hacker News</h3><div class="cmd">/hackernews</div></div>
+      <div class="card"><h3>TechCrunch</h3><div class="cmd">/techcrunch</div></div>
+    </div>
+
+    <div class="cat-title">🔒 Seguridad</div>
+    <div class="grid">
+      <div class="card"><h3>The Hacker News</h3><div class="cmd">/thehackernews</div></div>
+      <div class="card"><h3>Krebs on Security</h3><div class="cmd">/krebs</div></div>
     </div>
   </section>
+
 
   <!-- Quick start -->
   <section class="quickstart">
@@ -227,14 +245,18 @@
     <pre>docker run -d --name report_news \
   -e TOKEN="tu_token_telegram" \
   neytor/report_news</pre>
-    <pre># O con docker-compose
-version: '3'
+    <pre># docker-compose.yml
 services:
   report_news:
     image: neytor/report_news
-    restart: always
+    restart: unless-stopped
     environment:
-      - TOKEN=tu_token_telegram</pre>
+      - TOKEN=tu_token_telegram
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import requests; requests.get('https://api.telegram.org', timeout=5)"]
+      interval: 60s
+      timeout: 10s
+      retries: 3</pre>
   </section>
 
   <!-- Architectures -->
@@ -254,7 +276,7 @@ services:
 
   <!-- Footer -->
   <footer>
-    Hecho por <a href="https://www.yonier.com">Yonier Gómez</a> · <a href="https://github.com/YonierGomez/report_news">GitHub</a>
+    Hecho por <a href="https://www.yonier.com">Yonier Gómez</a> · <a href="https://github.com/YonierGomez/report_news">GitHub</a> · <a href="https://hub.docker.com/r/neytor/report_news">Docker Hub</a>
   </footer>
 </body>
 </html>

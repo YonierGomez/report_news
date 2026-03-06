@@ -6,76 +6,67 @@ from news import (
     news_muylinux,
     news_xataka,
     news_xataka_android,
-    # news_distrowatch,
+    news_distrowatch,
     news_genbeta,
     news_hipertextual,
     news_computerhoy,
     config
 )
+from news.formatter import format_news
 
 bot = telebot.TeleBot(config.VAR_TOKEN)
 
 var_msj_news = 'Principales noticias Sr Yonier'
-# Funciones para obtener noticias
+
 def get_applesfera_news(message):
     print('Apple Esfera -', var_msj_news)
-    print('='*130)
-    for new in news_apple_sfera.news('https://www.applesfera.com/'):
-        bot.send_message(message.chat.id, new)
+    result = news_apple_sfera.news('https://www.applesfera.com/')
+    bot.send_message(message.chat.id, format_news('Apple Esfera', '🍏', result))
 
-# def get_distrowatch_news(message):
-#     print('Distrowatch -', var_msj_news)
-#     print('='*130)
-#     for new in news_distrowatch.get_distrowatch_news(message):
-#         bot.send_message(message.chat.id, new)
+def get_distrowatch_news(message):
+    print('Distrowatch -', var_msj_news)
+    result = news_distrowatch.news('https://distrowatch.com/')
+    bot.send_message(message.chat.id, format_news('DistroWatch', '🐧', result))
 
 def get_fayer_news(message):
     print('Fayer Wayer -', var_msj_news)
-    print('='*130)
-    for new in news_fayer.news('https://www.fayerwayer.com/internet/', 'https://www.fayerwayer.com'):
-        bot.send_message(message.chat.id, new)
+    result = news_fayer.news('https://www.fayerwayer.com/internet/', 'https://www.fayerwayer.com')
+    bot.send_message(message.chat.id, format_news('Fayer Wayer', '🌐', result))
 
 def get_muylinux_news(message):
     print('Muy Linux -', var_msj_news)
-    print('='*130)
-    for new in news_muylinux.news('https://www.muylinux.com/'):
-        bot.send_message(message.chat.id, new)
+    result = news_muylinux.news('https://www.muylinux.com/')
+    bot.send_message(message.chat.id, format_news('Muy Linux', '🐧', result))
 
 def get_google_news(message):
     print('Google -', var_msj_news)
-    print('='*130)
-    for new in news_google.news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/articles/'):
-        bot.send_message(message.chat.id, new)
+    result = news_google.news('https://news.google.com/topics/CAAqLQgKIidDQkFTRndvSkwyMHZNR1ptZHpWbUVnWmxjeTAwTVRrYUFrTlBLQUFQAQ?hl=es-419&gl=CO&ceid=CO%3Aes-419', 'https://news.google.com/articles/')
+    bot.send_message(message.chat.id, format_news('Google News', '📰', result))
 
 def get_xatakandroid_news(message):
     print('Xataka Android -', var_msj_news)
-    print('='*130)
-    for new in news_xataka.news('https://www.xatakandroid.com/'):
-        bot.send_message(message.chat.id, new)
+    result = news_xataka_android.news('https://www.xatakandroid.com/')
+    bot.send_message(message.chat.id, format_news('Xataka Android', '🤖', result))
 
 def get_xataka_news(message):
     print('Xataka -', var_msj_news)
-    print('='*130)
-    for new in news_xataka.news('https://www.xataka.com/'):
-        bot.send_message(message.chat.id, new)
+    result = news_xataka.news('https://www.xataka.com/')
+    bot.send_message(message.chat.id, format_news('Xataka', '💻', result))
 
 def get_genbeta_news(message):
     print('genbeta actualidad -', var_msj_news)
-    print('='*130)
-    for new in news_genbeta.news('https://www.genbeta.com/categoria/actualidad'):
-        bot.send_message(message.chat.id, new)
-        
+    result = news_genbeta.news('https://www.genbeta.com/categoria/actualidad')
+    bot.send_message(message.chat.id, format_news('Genbeta', '⚡', result))
+
 def get_hipertextual_news(message):
     print('Hipertextual -', var_msj_news)
-    print('='*130)
-    for new in news_hipertextual.news('https://hipertextual.com/tecnologia'):
-        bot.send_message(message.chat.id, new)
-        
+    result = news_hipertextual.news('https://hipertextual.com/tecnologia')
+    bot.send_message(message.chat.id, format_news('Hipertextual', '📡', result))
+
 def get_computerhoy_news(message):
     print('computerhoy -', var_msj_news)
-    print('='*130)
-    for new in news_computerhoy.news('https://computerhoy.20minutos.es/'):
-        bot.send_message(message.chat.id, new)
+    result = news_computerhoy.news('https://computerhoy.20minutos.es/')
+    bot.send_message(message.chat.id, format_news('Computer Hoy', '🖥️', result))
 
 def get_cmd(message):
     print('Bienvenido al bot de Yonier')
@@ -85,7 +76,7 @@ def get_cmd(message):
 # Diccionario que mapea comandos a funciones
 command_functions = {
     '/applesfera': get_applesfera_news,
-    # '/distrowatch': get_distrowatch_news,
+    '/distrowatch': get_distrowatch_news,
     '/fayer': get_fayer_news,
     '/google': get_google_news,
     '/muylinux': get_muylinux_news,
@@ -121,7 +112,7 @@ if __name__ == '__main__':
         telebot.types.BotCommand("/applesfera", "Noticias - Apple"),
         telebot.types.BotCommand("/computerhoy", "Noticias - computerhoy"),
         telebot.types.BotCommand("/hipertextual", "Noticias - Hipertextual"),
-        # telebot.types.BotCommand("/distrowatch", "Noticias - Distro Linux"),
+        telebot.types.BotCommand("/distrowatch", "Noticias - Distro Linux"),
         telebot.types.BotCommand("/fayer", "Noticias - Fayer Wayer"),
         telebot.types.BotCommand("/muylinux", "Noticias - GNU/Linux"),
         telebot.types.BotCommand("/xatakandroid", "Noticias - Android"),

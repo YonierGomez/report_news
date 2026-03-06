@@ -13,7 +13,7 @@ def news(URL):
         soup = BeautifulSoup(leer, 'html.parser')
 
         get_news = []
-        for r_title in soup.find_all(class_='hentry'):
+        for r_title in soup.find_all(class_='hentry', limit=10):
             get_news.append((r_title.h2.text.strip(), r_title.a["href"]))
 
         return get_news

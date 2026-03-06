@@ -1,17 +1,7 @@
 Web scrapping para obtener noticias a través de un bot en telegram, hecho en Python.
 ======================  
 
-![GitHub stars](https://img.shields.io/github/stars/YonierGomez/report_news?style=flat-square)
-![GitHub forks](https://img.shields.io/github/forks/YonierGomez/report_news?style=flat-square)
-![GitHub issues](https://img.shields.io/github/issues/YonierGomez/report_news?style=flat-square)
-![GitHub license](https://img.shields.io/github/license/YonierGomez/report_news?style=flat-square)
-![GitHub last commit](https://img.shields.io/github/last-commit/YonierGomez/report_news?style=flat-square)
-![GitHub top language](https://img.shields.io/github/languages/top/YonierGomez/report_news?style=flat-square)
-![Docker Pulls](https://img.shields.io/docker/pulls/neytor/report_news?style=flat-square)
-![Docker Image Size](https://img.shields.io/docker/image-size/neytor/report_news/latest?style=flat-square)
-![Alpine Linux](https://img.shields.io/badge/base-Alpine%20Linux-0D597F?style=flat-square&logo=alpinelinux&logoColor=white)
-![Python](https://img.shields.io/badge/python-3-3776AB?style=flat-square&logo=python&logoColor=white)
-![Telegram Bot](https://img.shields.io/badge/Telegram-Bot-26A5E4?style=flat-square&logo=telegram&logoColor=white)
+![GitHub stars](https://img.shields.io/github/stars/YonierGomez/report_news?style=flat-square) ![GitHub forks](https://img.shields.io/github/forks/YonierGomez/report_news?style=flat-square) ![GitHub issues](https://img.shields.io/github/issues/YonierGomez/report_news?style=flat-square) ![GitHub license](https://img.shields.io/github/license/YonierGomez/report_news?style=flat-square) ![GitHub last commit](https://img.shields.io/github/last-commit/YonierGomez/report_news?style=flat-square) ![GitHub top language](https://img.shields.io/github/languages/top/YonierGomez/report_news?style=flat-square) ![Docker Pulls](https://img.shields.io/docker/pulls/neytor/report_news?style=flat-square) ![Docker Image Size](https://img.shields.io/docker/image-size/neytor/report_news/latest?style=flat-square) ![Alpine Linux](https://img.shields.io/badge/base-Alpine%20Linux-0D597F?style=flat-square&logo=alpinelinux&logoColor=white) ![Python](https://img.shields.io/badge/python-3-3776AB?style=flat-square&logo=python&logoColor=white) ![Telegram Bot](https://img.shields.io/badge/Telegram-Bot-26A5E4?style=flat-square&logo=telegram&logoColor=white)
 
 🌐 **Landing:** [https://yoniergomez.github.io/report_news](https://yoniergomez.github.io/report_news) · 🏠 **Web:** [https://www.yonier.com](https://www.yonier.com)
 

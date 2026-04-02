@@ -1,29 +1,39 @@
-name: Docker Image CI for report_news (multi-arch)
+name: Docker Multi-Arch CI - report_news
 
 on:
   schedule:
-    - cron: '0 8 * * 1' # Cada lunes a las 8:00 UTC
+    - cron: '0 8 * * 1'  # Every Monday 08:00 UTC
   workflow_dispatch:
     inputs:
       force_build:
-        description: 'Forzar build y push aunque no haya nueva versión de Alpine'
+        description: 'Force build even if Alpine version unchanged'
         required: false
-        default: 'false'
         type: choice
+        default: 'false'
         options:
-          - 'false'
           - 'true'
+          - 'false'
+      skip_release:
+        description: 'Build and push Docker image but skip GitHub Release creation'
+        required: false
+        type: choice
+        default: 'false'
+        options:
+          - 'true'
+          - 'false'
 
 permissions:
   contents: write
 
 jobs:
-  check_and_build:
+  # ── Phase 1: detect whether a new Alpine version is available ─────────────────
+  check-version:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6.0.2
-        name: Download codigo from repo
+    outputs:
+      version: ${{ steps.alpine_version.outputs.version }}
+      should_build: ${{ steps.compare.outputs.should_build }}
 
+    steps:
       - name: Get latest Alpine version
         id: alpine_version
         run: |
@@ -31,128 +41,188 @@ jobs:
           echo "version=$ALPINE_VERSION" >> "$GITHUB_OUTPUT"
           echo "Alpine version: $ALPINE_VERSION"
 
-      - name: Get latest release tag from repo
-        id: latest_release
+      - name: Get latest GitHub release tag
+        id: get_release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST_TAG=$(gh release view --json tagName -q '.tagName' 2>/dev/null || echo "none")
-          echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
-          echo "Latest release tag: $LATEST_TAG"
+          LATEST=$(gh release list \
+            --repo ${{ github.repository }} \
+            --limit 1 \
+            --json tagName \
+            --jq '.[0].tagName // ""')
+          echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
+          echo "Latest release: $LATEST"
 
-      - name: Compare versions
+      - name: Decide whether to build
         id: compare
         run: |
-          ALPINE="v${{ steps.alpine_version.outputs.version }}"
-          LATEST="${{ steps.latest_release.outputs.tag }}"
+          CURRENT="v${{ steps.alpine_version.outputs.version }}"
+          LATEST="${{ steps.get_release.outputs.latest }}"
           FORCE="${{ github.event.inputs.force_build }}"
-          echo "Alpine: $ALPINE vs Latest release: $LATEST (force: $FORCE)"
-          if [ "$ALPINE" != "$LATEST" ] || [ "$FORCE" = "true" ]; then
-            echo "new_version=true" >> "$GITHUB_OUTPUT"
-            echo "Build necesario"
+          if [[ "$CURRENT" != "$LATEST" || "$FORCE" == "true" ]]; then
+            echo "should_build=true"  >> "$GITHUB_OUTPUT"
+            echo "Build needed: current=$CURRENT, latest=$LATEST, force=$FORCE"
           else
-            echo "new_version=false" >> "$GITHUB_OUTPUT"
-            echo "Sin cambios"
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
+            echo "No new version — skipping build."
           fi
 
-      - name: Set up QEMU
-        if: steps.compare.outputs.new_version == 'true'
-        uses: docker/setup-qemu-action@v4
+  # ── Phase 2: build per-arch on native runners (no QEMU) ──────────────────────
+  build:
+    needs: check-version
+    if: needs.check-version.outputs.should_build == 'true'
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+
+    steps:
+      - uses: actions/checkout@v6.0.2
 
       - name: Set up Docker Buildx
-        if: steps.compare.outputs.new_version == 'true'
         uses: docker/setup-buildx-action@v4.0.0
 
       - name: Docker Login
-        if: steps.compare.outputs.new_version == 'true'
-        uses: docker/login-action@v4
+        uses: docker/login-action@v4.0.0
         with:
           registry: docker.io
           username: ${{ secrets.USER_HUB }}
           password: ${{ secrets.PASS_HUB }}
 
-      - name: Build and push Docker image
-        if: steps.compare.outputs.new_version == 'true'
+      - name: Build and push by digest
+        id: build
         uses: docker/build-push-action@v7.0.0
         with:
           context: .
           file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: ${{ matrix.platform }}
           push: true
-          tags: |
-            neytor/report_news:latest
-            neytor/report_news:${{ steps.alpine_version.outputs.version }}
+          outputs: type=image,name=neytor/report_news,push-by-digest=true,name-canonical=true,push=true
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - name: Upload digest artifact
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: digest-${{ matrix.runner }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  # ── Phase 3: merge digests into multi-arch manifest ──────────────────────────
+  build-and-push:
+    needs: [check-version, build]
+    if: needs.check-version.outputs.should_build == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v8.0.1
+        with:
+          path: /tmp/digests
+          pattern: digest-*
+          merge-multiple: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4.0.0
+
+      - name: Docker Login
+        uses: docker/login-action@v4.0.0
+        with:
+          registry: docker.io
+          username: ${{ secrets.USER_HUB }}
+          password: ${{ secrets.PASS_HUB }}
+
+      - name: Create and push multi-arch manifest
+        run: |
+          VERSION="${{ needs.check-version.outputs.version }}"
+          docker buildx imagetools create \
+            -t neytor/report_news:latest \
+            -t neytor/report_news:${VERSION} \
+            $(printf 'neytor/report_news@sha256:%s ' $(ls /tmp/digests))
+
+  # ── Phase 4: GitHub Release with changelog ────────────────────────────────────
+  release:
+    needs: [check-version, build-and-push]
+    if: needs.check-version.outputs.should_build == 'true' && github.event.inputs.skip_release != 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if release already exists
+        id: check_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTS=$(gh release view "v${{ needs.check-version.outputs.version }}" \
+            --repo ${{ github.repository }} 2>/dev/null && echo "true" || echo "false")
+          echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
 
       - name: Get Alpine release notes
-        if: steps.compare.outputs.new_version == 'true'
         id: changelog
         run: |
-          VERSION="${{ steps.alpine_version.outputs.version }}"
-          # Extraer major.minor (3.21.3 -> 3.21)
-          MAJOR_MINOR=$(echo "$VERSION" | grep -oP '^\d+\.\d+')
+          VERSION="${{ needs.check-version.outputs.version }}"
           URL="https://alpinelinux.org/posts/Alpine-${VERSION}-released.html"
-
-          echo "Fetching release notes from: $URL"
-
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
           NOTES=$(curl -sf "$URL" 2>/dev/null | \
             sed -n '/<article/,/<\/article>/p' | \
             sed 's/<[^>]*>//g' | \
             sed '/^$/d' | \
-            head -30 || echo "Ver novedades en https://alpinelinux.org/releases/")
-
+            head -30 || echo "See https://alpinelinux.org/releases/")
           echo "$NOTES" > /tmp/alpine_changelog.txt
-          echo "url=$URL" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
-        if: steps.compare.outputs.new_version == 'true'
+        if: steps.check_release.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="v${{ steps.alpine_version.outputs.version }}"
-          VERSION="${{ steps.alpine_version.outputs.version }}"
-
-          # Si el release ya existe (force_build), no crear otro
-          if gh release view "$TAG" &>/dev/null; then
-            echo "Release $TAG ya existe, omitiendo creación"
-            exit 0
-          fi
-
+          TAG="v${{ needs.check-version.outputs.version }}"
+          VERSION="${{ needs.check-version.outputs.version }}"
           CHANGELOG=$(cat /tmp/alpine_changelog.txt)
           NOTES_URL="${{ steps.changelog.outputs.url }}"
 
-          cat > /tmp/release_notes.md << EOF
+          cat > /tmp/release-notes.md << NOTES
           ## report_news on Alpine Linux ${VERSION}
 
-          ### Novedades de Alpine ${VERSION}
-
-          \`\`\`
-          ${CHANGELOG}
-          \`\`\`
-
-          > 📋 [Release notes completas](${NOTES_URL})
-
-          ### Docker tags
+          ### Docker Images
 
           \`\`\`bash
           docker pull neytor/report_news:latest
           docker pull neytor/report_news:${VERSION}
           \`\`\`
 
-          ### Arquitecturas soportadas
+          ### Supported Architectures
 
-          | Arquitectura | Plataforma | Comando para forzar |
-          |---|---|---|
-          | x86-64 | PCs, servidores | \`docker pull --platform linux/amd64 neytor/report_news\` |
-          | ARM64 | Raspberry Pi 3/4/5, Apple Silicon | \`docker pull --platform linux/arm64 neytor/report_news\` |
-          | ARMv7 | Raspberry Pi 2, IoT | \`docker pull --platform linux/arm/v7 neytor/report_news\` |
+          | Architecture | Tag |
+          |---|---|
+          | linux/amd64 | \`latest\`, \`${VERSION}\` |
+          | linux/arm64 | \`latest\`, \`${VERSION}\` |
 
-          ### Uso rápido
+          ### Alpine Changelog
+
+          \`\`\`
+          ${CHANGELOG}
+          \`\`\`
+
+          > [Release notes completas](${NOTES_URL})
+
+          ### Quick Start
 
           \`\`\`bash
-          docker run -d --name report_news -e TOKEN="tu_token_telegram" neytor/report_news
+          docker run -d --name report_news -e TOKEN="your_telegram_token" neytor/report_news
           \`\`\`
-          EOF
+          NOTES
 
           gh release create "$TAG" \
+            --repo ${{ github.repository }} \
             --title "report_news ${VERSION}" \
-            --notes-file /tmp/release_notes.md
+            --notes-file /tmp/release-notes.md

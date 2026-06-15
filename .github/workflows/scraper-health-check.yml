@@ -8,6 +8,8 @@ on:
 jobs:
   health_check:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
       - uses: actions/checkout@v6.0.2
 
@@ -24,6 +26,7 @@ jobs:
         run: |
           python3 << 'PYEOF'
           import sys
+          import os
           sys.path.insert(0, '.')
 
           from news import (
@@ -72,7 +75,10 @@ jobs:
                   print(f'❌ {name}: {e}')
 
           if failed:
-              print(f'\n::set-output name=failed::{"; ".join(failed)}')
+              github_output = os.environ.get('GITHUB_OUTPUT', '')
+              if github_output:
+                  with open(github_output, 'a') as f:
+                      f.write(f'failed={"; ".join(failed)}\n')
               print(f'\nFailed: {len(failed)}/{len(scrapers)}')
           else:
               print(f'\n✅ Todos los scrapers funcionan correctamente')

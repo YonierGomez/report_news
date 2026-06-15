@@ -17,6 +17,8 @@ def news(URL):
             link = h3.find('a', href=True)
             if link:
                 get_news.append((h3.text.strip(), link['href']))
+            elif h3.parent and h3.parent.name == 'a' and h3.parent.get('href'):
+                get_news.append((h3.text.strip(), h3.parent['href']))
 
         return get_news
 
